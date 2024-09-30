@@ -1,0 +1,57 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+
+  background-color: #ffffff;
+}
+
+h1 {
+  color: #2c3e50;
+}
+
+p {
+  color: #34495e;
+}
+
+/* Place the navbar at the bottom of the page, and make it stick */
+.navbar {
+  background-color: #aa0f31fb;
+  overflow: hidden;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+ /* Place the navbar at the bottom of the page, and make it stick */
+ .navbar {
+  background-color: #000000;
+  overflow: hidden;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+/* Style the links inside the navigation bar */
+.navbar a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+
+
+/* Add a green background color to the active link */
+.navbar a.active {
+  background-color: #04AA6D;
+  color: white;
+}
+
+/* Hide the link that should open and close the navbar on small screens */
+.navbar .icon {
+  display: none;
+} 
+
