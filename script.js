@@ -2,222 +2,193 @@ document.addEventListener('DOMContentLoaded', function () {
     const addExerciseBtn = document.getElementById('addExerciseBtn');
     const ejerciciosContainer = document.getElementById('ejerciciosContainer');
     const savedExercisesContainer = document.getElementById('savedExercisesContainer');
+    const saveRoutineBtn = document.getElementById('saveRoutineBtn');
 
-    // Array para almacenar los ejercicios guardados
     let ejerciciosGuardados = [];
 
-    // Evento para agregar un nuevo ejercicio
-    addExerciseBtn.addEventListener('click', function () {
-        const newExerciseGroup = document.createElement('div');
-        newExerciseGroup.className = 'exercise-group';
+    // Cargar usuarios
+    fetch('get_users.php')
+        .then(response => response.json())
+        .then(data => {
+            const userSelect = document.getElementById('userSelect');
+            userSelect.innerHTML = '<option value="">Seleccionar usuario</option>';
+            data.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = `${user.nombres} ${user.apellido_paterno} ${user.apellido_materno}`; // Mostrar nombre completo
+                userSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error al cargar usuarios:', error));
 
-        newExerciseGroup.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <label for="grupoMuscularSelect" class="form-label">Grupo Muscular</label>
-                    <select class="form-select grupo-muscular">
-                        <option selected>Selecciona</option>
-                        <option value="Pecho">Pecho</option>
-                        <option value="Espalda">Espalda</option>
-                        <option value="Tríceps">Tríceps</option>
-                    </select>
+    // Cargar grupos musculares
+    fetch('get_grupos_musculares.php')
+        .then(response => response.json())
+        .then(data => {
+            addExerciseBtn.addEventListener('click', function () {
+                const newExerciseGroup = document.createElement('div');
+                newExerciseGroup.className = 'exercise-group';
 
-                    <label for="ejercicioSelect" class="form-label">Ejercicio</label>
-                    <select class="form-select ejercicio">
-                        <option selected>Selecciona</option>
-                    </select>
-
-                    <div class="row mt-3">
-                        <div class="col">
-                            <label for="repeticionesInput" class="form-label">Repeticiones</label>
-                            <input type="number" class="form-control repeticiones" placeholder="0">
-                        </div>
-                        <div class="col">
-                            <label for="seriesInput" class="form-label">Series</label>
-                            <input type="number" class="form-control series" placeholder="0">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Botón de eliminar ejercicio -->
-                <button class="btn btn-danger btn-sm delete-exercise">Eliminar</button>
-            </div>
-        `;
-
-        // Agregar el nuevo grupo al contenedor
-        ejerciciosContainer.appendChild(newExerciseGroup);
-
-        // Evento para eliminar ejercicio de la interfaz
-        const deleteBtn = newExerciseGroup.querySelector('.delete-exercise');
-        deleteBtn.addEventListener('click', function () {
-            ejerciciosContainer.removeChild(newExerciseGroup);
-        });
-
-        // Población de ejercicios basada en el grupo muscular
-        const grupoMuscularSelect = newExerciseGroup.querySelector('.grupo-muscular');
-        const ejercicioSelect = newExerciseGroup.querySelector('.ejercicio');
-        
-        grupoMuscularSelect.addEventListener('change', function () {
-            const selectedGroup = this.value;
-            populateExercises(ejercicioSelect, selectedGroup);
-        });
-
-        // Almacenar el ejercicio en el pseudo guardado y eliminar campos de edición
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = 'Guardar Ejercicio';
-        saveBtn.className = 'btn btn-primary btn-sm';
-        newExerciseGroup.appendChild(saveBtn);
-
-        saveBtn.addEventListener('click', function () {
-            const grupoMuscular = grupoMuscularSelect.value;
-            const ejercicio = ejercicioSelect.value;
-            const repeticiones = newExerciseGroup.querySelector('.repeticiones').value;
-            const series = newExerciseGroup.querySelector('.series').value;
-
-            // Validación básica
-            if (grupoMuscular !== 'Selecciona' && ejercicio !== 'Selecciona' && repeticiones && series) {
-                const nuevoEjercicio = {
-                    grupoMuscular,
-                    ejercicio,
-                    repeticiones,
-                    series
-                };
-
-                // Agregar el ejercicio al array
-                ejerciciosGuardados.push(nuevoEjercicio);
-
-                // Eliminar los campos de edición y reemplazarlos con texto
                 newExerciseGroup.innerHTML = `
-                    <div>
-                        <strong>Grupo Muscular:</strong> ${grupoMuscular} <br>
-                        <strong>Ejercicio:</strong> ${ejercicio} <br>
-                        <strong>Repeticiones:</strong> ${repeticiones} <br>
-                        <strong>Series:</strong> ${series}
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <label for="grupoMuscularSelect" class="form-label">Grupo Muscular</label>
+                            <select class="form-select grupo-muscular">
+                                <option value="">Seleccionar grupo muscular</option>
+                            </select>
+
+                            <label for="ejercicioSelect" class="form-label">Ejercicio</label>
+                            <select class="form-select ejercicio">
+                                <option value="">Selecciona ejercicio</option>
+                            </select>
+
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <label for="repeticionesInput" class="form-label">Repeticiones</label>
+                                    <input type="number" class="form-control repeticiones" placeholder="0" min="0">
+                                </div>
+                                <div class="col">
+                                    <label for="seriesInput" class="form-label">Series</label>
+                                    <input type="number" class="form-control series" placeholder="0" min="0">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn btn-warning btn-sm edit-exercise">Editar</button>
-                    <button class="btn btn-danger btn-sm delete-exercise">Eliminar</button>
+                    <div class="mt-3 d-flex justify-content-end">
+                        <button class="btn btn-primary btn-sm save-exercise">Guardar Ejercicio</button>
+                        <button class="btn btn-danger btn-sm ms-2 delete-exercise">Eliminar</button>
+                    </div>
                 `;
 
-                // Evento para editar el ejercicio
-                const editBtn = newExerciseGroup.querySelector('.edit-exercise');
-                editBtn.addEventListener('click', function () {
-                    editarEjercicio(newExerciseGroup, nuevoEjercicio);
+                ejerciciosContainer.appendChild(newExerciseGroup);
+
+                const grupoMuscularSelect = newExerciseGroup.querySelector('.grupo-muscular');
+                const ejercicioSelect = newExerciseGroup.querySelector('.ejercicio');
+
+                // Llenar el select de grupos musculares
+                data.forEach(grupo => {
+                    const option = document.createElement('option');
+                    option.value = grupo.id;
+                    option.textContent = grupo.nombre;
+                    grupoMuscularSelect.appendChild(option);
                 });
 
-                // Evento para eliminar el ejercicio guardado
-                const deleteGuardadoBtn = newExerciseGroup.querySelector('.delete-exercise');
-                deleteGuardadoBtn.addEventListener('click', function () {
-                    eliminarEjercicio(newExerciseGroup, nuevoEjercicio);
+                // Evento para cargar ejercicios al seleccionar un grupo muscular
+                grupoMuscularSelect.addEventListener('change', function () {
+                    const selectedGroupId = this.value;
+                    ejercicioSelect.innerHTML = '<option value="">Selecciona ejercicio</option>'; // Limpiar opciones anteriores
+
+                    if (selectedGroupId) {
+                        fetch(`get_ejercicios.php?grupoMuscularId=${selectedGroupId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                data.forEach(ejercicio => {
+                                    const option = document.createElement('option');
+                                    option.value = ejercicio.id; // Guardamos el ID del ejercicio
+                                    option.textContent = ejercicio.nombre; // Mostramos el nombre del ejercicio
+                                    ejercicioSelect.appendChild(option);
+                                });
+                            })
+                            .catch(error => console.error('Error al cargar ejercicios:', error));
+                    }
                 });
-            } else {
-                alert('Por favor, completa todos los campos antes de guardar.');
-            }
-        });
-    });
 
-    // Función para llenar el select de ejercicios basado en el grupo muscular
-    function populateExercises(selectElement, group) {
-        selectElement.innerHTML = ''; // Limpiar las opciones anteriores
-        const defaultOption = document.createElement('option');
-        defaultOption.textContent = 'Selecciona';
-        selectElement.appendChild(defaultOption);
+                const deleteBtn = newExerciseGroup.querySelector('.delete-exercise');
+                deleteBtn.addEventListener('click', function () {
+                    ejerciciosContainer.removeChild(newExerciseGroup);
+                });
 
-        let exercises = [];
-        if (group === 'Pecho') {
-            exercises = ['Press de Banca', 'Flexiones', 'Aperturas'];
-        } else if (group === 'Espalda') {
-            exercises = ['Dominadas', 'Remo', 'Peso Muerto'];
-        } else if (group === 'Tríceps') {
-            exercises = ['Fondos', 'Extensiones de Tríceps', 'Patadas de Tríceps'];
+                const saveBtn = newExerciseGroup.querySelector('.save-exercise');
+                saveBtn.addEventListener('click', function () {
+                    const grupoMuscularId = grupoMuscularSelect.value;
+                    const grupoMuscularNombre = grupoMuscularSelect.options[grupoMuscularSelect.selectedIndex].text; // Obtener el nombre del grupo muscular
+                    const ejercicioId = ejercicioSelect.value;
+                    const ejercicioNombre = ejercicioSelect.options[ejercicioSelect.selectedIndex].text; // Obtener el nombre del ejercicio
+                    const repeticiones = newExerciseGroup.querySelector('.repeticiones').value;
+                    const series = newExerciseGroup.querySelector('.series').value;
+
+                    if (grupoMuscularId && ejercicioId && repeticiones && series) {
+                        const nuevoEjercicio = {
+                            grupoMuscular: grupoMuscularNombre, // Guardamos el nombre del grupo muscular
+                            ejercicio: ejercicioNombre, // Guardamos el nombre del ejercicio
+                            repeticiones: parseInt(repeticiones), // Asegúrate de convertir a número
+                            series: parseInt(series) // Asegúrate de convertir a número
+                        };
+
+                        ejerciciosGuardados.push(nuevoEjercicio);
+
+                        const savedExercise = document.createElement('div');
+                        savedExercise.className = 'exercise-group mt-3';
+
+                        savedExercise.innerHTML = `
+                            <div>
+                                <strong>Grupo Muscular:</strong> ${grupoMuscularNombre} <br>
+                                <strong>Ejercicio:</strong> ${ejercicioNombre} <br>
+                                <strong>Repeticiones:</strong> ${repeticiones} <br>
+                                <strong>Series:</strong> ${series}
+                            </div>
+                            <div class="mt-2 d-flex justify-content-end">
+                                <button class="btn btn-warning btn-sm edit-exercise">Editar</button>
+                                <button class="btn btn-danger btn-sm ms-2 delete-exercise">Eliminar</button>
+                            </div>
+                        `;
+
+                        savedExercisesContainer.appendChild(savedExercise);
+                        ejerciciosContainer.removeChild(newExerciseGroup);
+
+                        const editBtn = savedExercise.querySelector('.edit-exercise');
+                        editBtn.addEventListener('click', function () {
+                            // Aquí puedes implementar la lógica de edición si es necesario
+                        });
+
+                        const savedDeleteBtn = savedExercise.querySelector('.delete-exercise');
+                        savedDeleteBtn.addEventListener('click', function () {
+                            savedExercisesContainer.removeChild(savedExercise);
+                        });
+
+                        // Actualizar el identificador de rutina
+                        document.getElementById('rutinaIdentificador').style.display = 'block';
+                        const identificadorRutina = `RTN-${ejerciciosGuardados.length}`; // Cambiar el formato del ID de rutina
+                        document.getElementById('identificadorRutina').textContent = identificadorRutina;
+                    } else {
+                        alert('Por favor, completa todos los campos.');
+                    }
+                });
+            });
+        })
+        .catch(error => console.error('Error al cargar grupos musculares:', error));
+
+    // Guardar rutina
+    saveRoutineBtn.addEventListener('click', function () {
+        const userId = document.getElementById('userSelect').value;
+
+        if (userId && ejerciciosGuardados.length > 0) {
+            fetch('save_routine.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    ejercicios: ejerciciosGuardados
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Rutina guardada exitosamente.');
+                    // Limpiar el formulario si se desea
+                    document.getElementById('userSelect').value = '';
+                    savedExercisesContainer.innerHTML = '';
+                    ejerciciosGuardados = [];
+                    document.getElementById('rutinaIdentificador').style.display = 'none';
+                } else {
+                    alert('Error al guardar la rutina: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error al guardar rutina:', error));
+        } else {
+            alert('Selecciona un usuario y agrega al menos un ejercicio.');
         }
-
-        exercises.forEach(exercise => {
-            const option = document.createElement('option');
-            option.value = exercise;
-            option.textContent = exercise;
-            selectElement.appendChild(option);
-        });
-    }
-
-    // Función para editar el ejercicio
-    function editarEjercicio(exerciseGroup, ejercicio) {
-        exerciseGroup.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <label for="grupoMuscularSelect" class="form-label">Grupo Muscular</label>
-                    <select class="form-select grupo-muscular">
-                        <option value="Pecho" ${ejercicio.grupoMuscular === 'Pecho' ? 'selected' : ''}>Pecho</option>
-                        <option value="Espalda" ${ejercicio.grupoMuscular === 'Espalda' ? 'selected' : ''}>Espalda</option>
-                        <option value="Tríceps" ${ejercicio.grupoMuscular === 'Tríceps' ? 'selected' : ''}>Tríceps</option>
-                    </select>
-
-                    <label for="ejercicioSelect" class="form-label">Ejercicio</label>
-                    <select class="form-select ejercicio">
-                        <option value="${ejercicio.ejercicio}" selected>${ejercicio.ejercicio}</option>
-                    </select>
-
-                    <div class="row mt-3">
-                        <div class="col">
-                            <label for="repeticionesInput" class="form-label">Repeticiones</label>
-                            <input type="number" class="form-control repeticiones" value="${ejercicio.repeticiones}">
-                        </div>
-                        <div class="col">
-                            <label for="seriesInput" class="form-label">Series</label>
-                            <input type="number" class="form-control series" value="${ejercicio.series}">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Volver a configurar el evento de guardar
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = 'Guardar Cambios';
-        saveBtn.className = 'btn btn-success btn-sm mt-2';
-        exerciseGroup.appendChild(saveBtn);
-
-        saveBtn.addEventListener('click', function () {
-            const updatedGrupoMuscular = exerciseGroup.querySelector('.grupo-muscular').value;
-            const updatedEjercicio = exerciseGroup.querySelector('.ejercicio').value;
-            const updatedRepeticiones = exerciseGroup.querySelector('.repeticiones').value;
-            const updatedSeries = exerciseGroup.querySelector('.series').value;
-
-            // Actualiza el objeto de ejercicio
-            ejercicio.grupoMuscular = updatedGrupoMuscular;
-            ejercicio.ejercicio = updatedEjercicio;
-            ejercicio.repeticiones = updatedRepeticiones;
-            ejercicio.series = updatedSeries;
-
-            // Reemplaza con los datos actualizados
-            exerciseGroup.innerHTML = `
-                <div>
-                    <strong>Grupo Muscular:</strong> ${updatedGrupoMuscular} <br>
-                    <strong>Ejercicio:</strong> ${updatedEjercicio} <br>
-                    <strong>Repeticiones:</strong> ${updatedRepeticiones} <br>
-                    <strong>Series:</strong> ${updatedSeries}
-                </div>
-                <button class="btn btn-warning btn-sm edit-exercise">Editar</button>
-                <button class="btn btn-danger btn-sm delete-exercise">Eliminar</button>
-            `;
-
-            // Restablece los eventos para editar y eliminar
-            const editBtn = exerciseGroup.querySelector('.edit-exercise');
-            editBtn.addEventListener('click', function () {
-                editarEjercicio(exerciseGroup, ejercicio);
-            });
-
-            const deleteGuardadoBtn = exerciseGroup.querySelector('.delete-exercise');
-            deleteGuardadoBtn.addEventListener('click', function () {
-                eliminarEjercicio(exerciseGroup, ejercicio);
-            });
-        });
-    }
-
-    // Función para eliminar ejercicio
-    function eliminarEjercicio(exerciseGroup, ejercicio) {
-        // Elimina el ejercicio del array
-        ejerciciosGuardados = ejerciciosGuardados.filter(e => e !== ejercicio);
-        // Elimina el elemento del DOM
-        exerciseGroup.remove();
-    }
+    });
 });

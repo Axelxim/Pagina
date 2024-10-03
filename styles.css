@@ -99,3 +99,48 @@ p {
   display: none;
 } 
 
+/*Estilo para el registro*/
+
+/* styles.css */
+
+/* Estilo para el contenedor del registro */
+.registro-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Ocupa toda la altura de la ventana */
+  background-color: #f8f9fa; /* Color de fondo claro */
+}
+
+/* Estilo para la tarjeta del formulario */
+.login-card {
+  width: 100%;
+  max-width: 400px; /* Ancho máximo del formulario */
+  border-radius: 10px; /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para dar profundidad */
+}
+
+/* Estilo para los encabezados */
+.card-header {
+  font-size: 1.5rem; /* Tamaño de fuente más grande */
+}
+
+/* Estilo para el cuerpo del formulario */
+.card-body {
+  padding: 20px; /* Espaciado interno */
+}
+
+/* Estilo para los botones */
+.btn {
+  width: 100%; /* Botones ocupan todo el ancho */
+}
+
+/* Estilo para los campos de entrada */
+.form-control {
+  border-radius: 5px; /* Bordes redondeados en los campos */
+}
+
+/* Estilo para el enlace de volver al login */
+.text-center a {
+  margin-top: 10px; /* Espacio entre el botón y el enlace */
+}
