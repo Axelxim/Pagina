@@ -23,24 +23,34 @@ $ejercicios = $data['ejercicios'];
 // Insertar la rutina en la base de datos
 $stmt = $mysqli->prepare("INSERT INTO rutinas (user_id) VALUES (?)");
 $stmt->bind_param("i", $userId);
-$stmt->execute();
-$rutinaId = $stmt->insert_id; // Obtener el ID de la rutina recién insertada
-$stmt->close();
 
-// Insertar los ejercicios relacionados con la rutina
-foreach ($ejercicios as $ejercicio) {
-    $grupoMuscular = $ejercicio['grupoMuscular'];
-    $ejercicioNombre = $ejercicio['ejercicio'];
-    $repeticiones = $ejercicio['repeticiones'];
-    $series = $ejercicio['series'];
-
-    // Aquí debes tener la lógica para obtener el id del grupo muscular y el ejercicio en base a su nombre
-    $stmt = $mysqli->prepare("INSERT INTO ejercicios (rutina_id, grupo_muscular, ejercicio, repeticiones, series) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issii", $rutinaId, $grupoMuscular, $ejercicioNombre, $repeticiones, $series);
-    $stmt->execute();
+if ($stmt->execute()) {
+    $rutinaId = $stmt->insert_id; // Obtener el ID de la rutina recién insertada
     $stmt->close();
+
+    // Insertar los ejercicios relacionados con la rutina
+    foreach ($ejercicios as $ejercicio) {
+        $grupoMuscular = $ejercicio['grupoMuscular'];
+        $ejercicioNombre = $ejercicio['ejercicio'];
+        $repeticiones = $ejercicio['repeticiones'];
+        $series = $ejercicio['series'];
+
+        // Aquí debes tener la lógica para obtener el id del grupo muscular y el ejercicio en base a su nombre
+        $stmt = $mysqli->prepare("INSERT INTO ejercicios (rutina_id, grupo_muscular, ejercicio, repeticiones, series) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("issii", $rutinaId, $grupoMuscular, $ejercicioNombre, $repeticiones, $series);
+
+        if (!$stmt->execute()) {
+            echo json_encode(["success" => false, "message" => "Error al guardar ejercicio: " . $stmt->error]);
+            exit;
+        }
+        $stmt->close();
+    }
+
+    // Respuesta de éxito
+    echo json_encode(["success" => true, "rutinaId" => $rutinaId]); // Devuelve el ID de la rutina
+} else {
+    echo json_encode(["success" => false, "message" => "Error al guardar rutina: " . $stmt->error]);
 }
 
-// Respuesta de éxito
-echo json_encode(["success" => true]);
+$mysqli->close();
 ?>
