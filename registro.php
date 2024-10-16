@@ -26,15 +26,17 @@ $telefono = $conexion->real_escape_string($data->telefono);
 $correo = $conexion->real_escape_string($data->correo);
 $username = $conexion->real_escape_string($data->username);
 $password = password_hash($conexion->real_escape_string($data->password), PASSWORD_BCRYPT);
+$tipoUsuario = $conexion->real_escape_string($data->tipoUsuario); // Capturar tipo de usuario (entrenador o entrenado)
 
 // Generar un código de activación
 $codigo_activacion = bin2hex(random_bytes(16));
 
-// Consulta para registrar el usuario
-$sql = "INSERT INTO usuarios (nombres, apellido_paterno, apellido_materno, telefono, correo, username, password, activado, codigo_activacion) VALUES ('$nombres', '$apellidoPaterno', '$apellidoMaterno', '$telefono', '$correo', '$username', '$password', 0, '$codigo_activacion')";
+// Consulta para registrar el usuario con el tipo de usuario incluido
+$sql = "INSERT INTO usuarios (nombres, apellido_paterno, apellido_materno, telefono, correo, username, password, activado, codigo_activacion, tipo_usuario) 
+        VALUES ('$nombres', '$apellidoPaterno', '$apellidoMaterno', '$telefono', '$correo', '$username', '$password', 0, '$codigo_activacion', '$tipoUsuario')";
 
 if ($conexion->query($sql) === TRUE) {
-    // Aquí envías el correo de activación
+    // Enviar el correo de activación
     $mail = new PHPMailer(true);
 
     try {
@@ -66,7 +68,7 @@ if ($conexion->query($sql) === TRUE) {
         echo json_encode(['success' => false, 'error' => 'Error al enviar el correo: ' . $mail->ErrorInfo]);
     }
 } else {
-    // Respuesta de error
+    // Respuesta de error al registrar el usuario
     echo json_encode(['success' => false, 'error' => 'Error al registrar el usuario: ' . $conexion->error]);
 }
 

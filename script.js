@@ -225,7 +225,7 @@ saveRoutineBtn.addEventListener('click', function () {
                             data.ejercicios.forEach((ejercicio, index) => {
                                 const row = document.createElement('tr');
                                 row.innerHTML = `
-                                    <td>${index + 1}</td>
+
                                     <td>${ejercicio.grupo_muscular}</td>
                                     <td>${ejercicio.ejercicio}</td>
                                     <td>${ejercicio.repeticiones}</td>
@@ -269,7 +269,7 @@ exportPdfBtn.addEventListener('click', function () {
     doc.text(`Usuario: ${selectedUserName}`, 14, 30);
     
     // Encabezados de la tabla
-    const headers = [["#", "Grupo Muscular", "Ejercicio", "Repeticiones", "Series"]];
+    const headers = [["Grupo Muscular", "Ejercicio", "Repeticiones", "Series"]];
     const rows = [];
 
     // Recopilar datos de la tabla de resumen

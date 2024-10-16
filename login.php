@@ -2,16 +2,18 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+session_start();
+
 // Obtener datos del frontend
 $data = json_decode(file_get_contents('php://input'), true);
 $username = $data['username'];
 $password = $data['password'];
 
 // Datos de conexión a la base de datos
-$host = 'localhost'; // Cambia esto si es necesario
+$host = 'localhost';
 $dbname = 'gym';
-$user = 'root'; // Reemplaza con tu usuario de MySQL
-$pass = 'carlos27'; // Reemplaza con tu contraseña de MySQL
+$user = 'root';
+$pass = 'carlos27';
 
 try {
     // Conectar a la base de datos MySQL
@@ -23,19 +25,43 @@ try {
     $stmt->bindParam(':username', $username);
     $stmt->execute();
 
-    // Verificar si se encontraron resultados
+    // Verificar si existe el usuario
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Verificar si la cuenta está activada
+        if ($user['activado'] == 0) {
+            echo json_encode(['success' => false, 'activado' => false, 'error' => 'Cuenta no activada. Por favor verifica tu correo.']);
+            exit;
+        }
+
         // Verificar la contraseña
         if (password_verify($password, $user['password'])) {
-            echo json_encode(['success' => true]);
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['nombre'] = $user['nombres']; // Guardar solo el nombre en la sesión
+
+            // Verificar si la clave 'tipo_usuario' está definida antes de usarla
+            if (isset($user['tipo_usuario'])) {
+                $_SESSION['tipo_usuario'] = $user['tipo_usuario']; // Guardar el tipo de usuario en la sesión
+
+                // Verificar el tipo de usuario y redirigir a la página correspondiente
+                if ($user['tipo_usuario'] == 'entrenador') {
+                    echo json_encode(['success' => true, 'redirect' => 'inicio_entrenador.php']);
+                } else {
+                    echo json_encode(['success' => true, 'redirect' => 'inicio_entrenado.php']);
+                }
+            } else {
+                // Manejar el caso en que 'tipo_usuario' no esté definido
+                echo json_encode(['success' => false, 'error' => 'Tipo de usuario no definido.']);
+            }
         } else {
-            echo json_encode(['success' => false]);
+            // Solo devuelve "Credenciales incorrectas" si la contraseña no coincide
+            echo json_encode(['success' => false, 'activado' => true, 'error' => 'Credenciales incorrectas']);
         }
     } else {
-        echo json_encode(['success' => false]);
+        // Si no se encuentra el usuario, muestra "Credenciales incorrectas"
+        echo json_encode(['success' => false, 'activado' => true, 'error' => 'Credenciales incorrectas']);
     }
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
-?>
