@@ -2,11 +2,11 @@
 const CACHE_NAME = 'oni-mexicano-cache-v1';
 const urlsToCache = [
     '/',
-    '/index.php',
-    '/styles.css',
-    '/login.js',
-    '/icon-192x192.png',
-    '/icon-512x512.png'
+    '/Pagina/index.php', // Cambiado para apuntar a index.php
+    '/Pagina/styles.css',
+    '/Pagina/login.js',
+    '/Pagina/img/icon-192x192.png', // Asegúrate de que las rutas sean correctas
+    '/Pagina/img/icon-512x512.png'
 ];
 
 // Instalar el service worker
@@ -39,7 +39,6 @@ self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
             .then(response => {
-                // Si hay una respuesta en la caché, devuélvela, si no, haz la solicitud
                 return response || fetch(event.request);
             })
     );
