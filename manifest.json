@@ -1,7 +1,7 @@
 {
   "name": "Oni Mexicano - Aplicación de Rutinas",
   "short_name": "Oni Mexicano",
-  "start_url": "/index.php",
+  "start_url": "https://vainixshop.shop/index.php"
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ff5722",
