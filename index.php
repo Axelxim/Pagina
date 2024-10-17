@@ -15,7 +15,7 @@ session_start(); // Iniciar la sesión
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-    <title>Oni Mexicano - Aplicacion de Rutinas</title>
+    <title>Oni Mexicano - Aplicación de Rutinas</title>
 </head>
 
 <body>
@@ -46,8 +46,15 @@ session_start(); // Iniciar la sesión
         </div>
     </div>
 
+    <!-- Banner de instalación -->
+    <div id="installBanner" class="alert alert-warning text-center" style="display: none;">
+        <p>Instala nuestra aplicación para una mejor experiencia.</p>
+        <button id="installBtn" class="btn btn-success">Instalar</button>
+    </div>
+
     <script src="login.js"></script>
     <script>
+        // Registro del Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
@@ -59,6 +66,30 @@ session_start(); // Iniciar la sesión
                     });
             });
         }
+
+        // Banner de instalación
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (event) => {
+            // Prevenir que el navegador muestre el prompt automáticamente
+            event.preventDefault();
+            deferredPrompt = event;
+            // Mostrar el banner de instalación
+            document.getElementById('installBanner').style.display = 'block';
+        });
+
+        document.getElementById('installBtn').addEventListener('click', () => {
+            document.getElementById('installBanner').style.display = 'none';
+            // Mostrar el prompt de instalación nativo
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('El usuario aceptó instalar la PWA');
+                } else {
+                    console.log('El usuario rechazó instalar la PWA');
+                }
+                deferredPrompt = null;
+            });
+        });
     </script>
 
 </body>
