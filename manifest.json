@@ -1,8 +1,11 @@
 {
-  "name": "Oni Mexicano - Aplicacion de Rutinas",
-  "short_name": "Oni",
+  "name": "Oni Mexicano - Aplicación de Rutinas",
+  "short_name": "Oni Mexicano",
   "start_url": "/index.php",
   "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff5722",
+  "description": "Una aplicación para gestionar rutinas de ejercicios.",
   "icons": [
     {
       "src": "icon-192x192.png",
@@ -12,26 +15,6 @@
     {
       "src": "icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-180x180.png",
-      "sizes": "180x180",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-167x167.png",
-      "sizes": "167x167",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-120x120.png",
-      "sizes": "120x120",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-76x76.png",
-      "sizes": "76x76",
       "type": "image/png"
     }
   ]

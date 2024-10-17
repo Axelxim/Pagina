@@ -31,5 +31,5 @@ document.getElementById("loginBtn").addEventListener("click", function () {
 });
 
 document.getElementById("registerBtn").addEventListener("click", function () {
-  window.location.href = "registro.html"; // Cambia 'registro.html' por la página que crees para el registro
+  window.location.href = "registrar.php"; // Cambia 'registrar.php' por la página que crees para el registro
 });
