@@ -2,7 +2,7 @@
     "name": "Mi App de Hábitos",
     "short_name": "Hábitos",
     "description": "Una aplicación para gestionar tus hábitos y tareas diarias.",
-    "start_url": "https://vainixshop.shop//index.php", 
+    "start_url": "https://vainixshop.shop/index.php", 
     "display": "standalone", 
     "background_color": "#ffffff", 
     "theme_color": "#4CAF50", 
